@@ -12,11 +12,7 @@
 - ✅ **SQL 生成与验证**：根据业务需求生成 GBase8a SQL 语句，并提供语法验证
 - ✅ **持续学习**：通过记录正向/反向反馈，持续优化 SQL 生成效果
 - ✅ **网页内容获取**：获取和分析网页内容
-- ✅ **多语言风格**：支持 7 种对话风格（专业/亲和/简洁/幽默/技术/导师/温柔大姐姐）
-- ✅ **长期记忆**：自动压缩过期对话并存储到知识库，支持历史上下文检索
-- ✅ **上下文感知**：基于历史对话上下文智能回答，提升回答质量
-- ✅ **数据持久化**：所有数据存储在 PostgreSQL，支持分布式部署
-- ✅ **S3 备份**：支持自动备份数据到 S3 对象存储
+- ✅ **多语言风格**：支持 6 种对话风格（专业/亲和/简洁/幽默/技术/导师）
 
 ### 工具清单（22 个）
 - 搜索工具（4 个）：web_search, search_competitor_info, search_market_trends, search_database_best_practices
@@ -43,19 +39,12 @@
 ├── config/                       # 配置目录
 │   └── agent_llm_config.json     # LLM 配置文件
 ├── docs/                         # 文档
-├── scripts/                      # 脚本（本地运行、HTTP 服务、初始化迁移）
-│   ├── init_migrate.py           # 数据库和数据迁移脚本
-│   └── ...
+├── scripts/                      # 脚本（本地运行、HTTP 服务）
 ├── assets/                       # 资源目录
-│   ├── sql_examples/             # SQL 示例库（已迁移到 PostgreSQL）
+│   ├── sql_examples/             # SQL 示例库
 │   │   ├── positive_examples.jsonl
 │   │   └── negative_examples.jsonl
-│   ├── language_styles.json      # 语言风格配置（已迁移到 PostgreSQL）
-│   ├── context_and_storage_optimization.md  # 优化方案文档
-│   └── implementation_summary.md # 实施总结文档
-├── migrations/                   # 数据库迁移脚本
-│   ├── 001_long_term_memory.sql  # 长期记忆表结构
-│   └── 002_data_storage.sql      # SQL 示例和语言风格表结构
+│   └── language_styles.json      # 语言风格配置
 ├── src/                          # 项目源码
 │   ├── agents/                   # Agent 代码
 │   │   └── agent.py              # 主 Agent 实现
@@ -69,22 +58,8 @@
 │   │   ├── sql_validation_tool.py
 │   │   └── sql_feedback_tool.py
 │   ├── storage/                  # 存储实现
-│   │   ├── memory/
-│   │   │   └── memory_saver.py   # 短期记忆（PostgreSQL checkpointer）
-│   │   ├── database/
-│   │   │   └── db.py             # 数据库连接管理
-│   │   ├── long_term/            # 长期记忆模块
-│   │   │   ├── models.py         # 数据模型
-│   │   │   ├── conversation_compressor.py  # 对话压缩引擎
-│   │   │   ├── long_term_storage.py        # 长期记忆存储
-│   │   │   ├── compression_manager.py      # 对话压缩管理器
-│   │   │   ├── context_retriever.py        # 上下文检索引擎
-│   │   │   ├── context_injector.py         # 上下文注入器
-│   │   │   └── agent_managers.py           # Agent 管理器单例
-│   │   ├── migration/            # 数据迁移模块
-│   │   │   └── migrator.py       # 数据迁移工具
-│   │   └── backup/               # 备份模块
-│   │       └── s3_backup_manager.py  # S3 备份管理器
+│   │   └── memory/
+│   │       └── memory_saver.py
 │   └── utils/                    # 业务封装代码
 ├── tests/                        # 单元测试
 ├── requirements.txt              # 依赖包列表
@@ -269,65 +244,6 @@ sudo journalctl -u gbase8a-assistant -f
 
 ## 配置说明
 
-### 数据库配置
-
-项目使用 PostgreSQL 作为主数据库，支持以下功能：
-- 短期记忆存储（对话 checkpointer）
-- 长期记忆存储（压缩后的对话）
-- SQL 示例存储
-- 语言风格配置存储
-
-#### 环境变量
-
-```bash
-# 数据库连接（可选，默认使用平台提供）
-PGDATABASE_URL=postgresql://user:password@host:port/database
-```
-
-#### 初始化数据库
-
-首次部署需要执行数据库迁移：
-
-```bash
-# 执行所有迁移（数据库 + 数据）
-python scripts/init_migrate.py
-
-# 仅执行数据库迁移
-python scripts/init_migrate.py --skip-data-migration
-
-# 仅执行数据迁移
-python scripts/init_migrate.py --skip-db-migration
-```
-
-### S3 对象存储配置（可选）
-
-用于数据备份和灾难恢复。
-
-#### 环境变量
-
-```bash
-# S3 配置
-COZE_BUCKET_ENDPOINT_URL=https://your-s3-endpoint.com
-COZE_BUCKET_NAME=your-bucket-name
-```
-
-#### 备份数据
-
-```python
-from storage.backup.s3_backup_manager import S3BackupManager
-
-manager = S3BackupManager()
-
-# 备份所有数据
-results = await manager.backup_all()
-
-# 仅备份 SQL 示例
-key = await manager.backup_sql_examples()
-
-# 列出备份文件
-backups = manager.list_backups(backup_type="sql_examples")
-```
-
 ### LLM 配置
 
 编辑 `config/agent_llm_config.json`：
@@ -409,107 +325,6 @@ python -m pytest tests/
 python -m pytest tests/test_sql_generation.py
 ```
 
-## 最新更新（v2.0）
-
-### 🚀 对话上下文与数据存储优化
-
-本次更新引入了长期记忆和上下文感知能力，大幅提升了系统的智能性和可靠性。
-
-#### 核心改进
-
-1. **对话压缩机制**
-   - 自动压缩超过 100 条消息的对话
-   - 使用 LLM 提取关键信息（主题、意图、决策、结论、技术细节）
-   - 生成 200-300 字的对话摘要
-   - 将压缩后的对话存储到 PostgreSQL 和知识库
-   - 异步压缩，不阻塞主流程
-
-2. **上下文感知引擎**
-   - 从短期记忆检索最近的消息
-   - 从长期记忆检索相关历史上下文（通过知识库）
-   - 语义相似性匹配 + 时间权重 + 重要性评分
-   - 综合排序（语义相似度 70%，时间权重 20%，重要性 10%）
-   - 支持最多 5 个上下文的检索和注入
-
-3. **数据持久化优化**
-   - 所有数据存储在 PostgreSQL，支持分布式部署
-   - SQL 示例和语言风格配置从本地文件迁移到数据库
-   - 支持 S3 对象存储备份，提供灾难恢复能力
-
-4. **数据迁移工具**
-   - 自动将本地 JSONL 文件迁移到 PostgreSQL
-   - 支持增量迁移（跳过已存在的记录）
-   - 迁移结果统计
-
-#### 新增功能
-
-- ✅ 长期记忆能力（保留历史对话）
-- ✅ 上下文感知能力（基于历史上下文智能回答）
-- ✅ 数据持久化能力（PostgreSQL + S3）
-- ✅ S3 备份能力（自动备份数据）
-- ✅ 7 种语言风格（新增温柔大姐姐风格）
-
-#### 技术实现
-
-**新增模块：**
-- `src/storage/long_term/` - 长期记忆模块
-  - `models.py` - 数据模型
-  - `conversation_compressor.py` - 对话压缩引擎
-  - `long_term_storage.py` - 长期记忆存储
-  - `compression_manager.py` - 对话压缩管理器
-  - `context_retriever.py` - 上下文检索引擎
-  - `context_injector.py` - 上下文注入器
-  - `agent_managers.py` - Agent 管理器单例
-
-- `src/storage/migration/` - 数据迁移模块
-  - `migrator.py` - 数据迁移工具
-
-- `src/storage/backup/` - 备份模块
-  - `s3_backup_manager.py` - S3 备份管理器
-
-**数据库表结构：**
-- `memory.long_term_conversations` - 长期记忆表
-- `memory.conversation_key_info` - 关键信息索引表
-- `memory.sql_examples` - SQL 示例表
-- `memory.language_styles` - 语言风格表
-
-**配置参数：**
-- 对话压缩阈值：100 条消息
-- 压缩间隔：24 小时
-- 短期记忆保留：20 轮对话（40 条消息）
-- 长期记忆保留：90 天
-- 上下文检索数量：最多 5 条
-
-#### 使用示例
-
-**对话压缩（自动触发）：**
-```python
-# 当对话消息数达到 100 时，自动触发压缩
-# 压缩后的对话存储到长期记忆，保留最近 20 条消息
-```
-
-**上下文检索（自动注入）：**
-```python
-# Agent 会自动检索相关历史上下文
-# 并将上下文注入到当前对话中
-# 提升回答的连贯性和准确性
-```
-
-**数据备份：**
-```python
-from storage.backup.s3_backup_manager import S3BackupManager
-
-manager = S3BackupManager()
-results = await manager.backup_all()
-# 结果包含：SQL 示例、语言风格、长期记忆的备份 key
-```
-
-#### 详细文档
-
-完整的优化方案和实施总结请参考：
-- [优化方案文档](assets/context_and_storage_optimization.md)
-- [实施总结文档](assets/implementation_summary.md)
-
 ## 常见问题
 
 ### Q1: 如何获取 API Key？
@@ -530,44 +345,6 @@ A:
 git pull origin main
 docker-compose down
 docker-compose up -d --build
-```
-
-### Q6: 首次部署需要做什么？
-A: 首次部署需要执行数据库迁移：
-```bash
-python scripts/init_migrate.py
-```
-
-### Q7: 如何备份数据？
-A: 使用 S3 备份管理器：
-```python
-from storage.backup.s3_backup_manager import S3BackupManager
-
-manager = S3BackupManager()
-await manager.backup_all()
-```
-
-### Q8: 对话压缩如何工作？
-A: 当对话消息数达到 100 条时，系统会自动：
-1. 使用 LLM 提取关键信息（主题、意图、决策、结论、技术细节）
-2. 生成对话摘要
-3. 将压缩后的对话存储到 PostgreSQL 和知识库
-4. 保留最近 20 条消息在短期记忆中
-
-### Q9: 如何清理过期的长期记忆？
-A: 系统会自动清理 90 天前的长期记忆记录。如需手动清理：
-```python
-from storage.long_term.long_term_storage import LongTermMemoryStorage
-
-storage = LongTermMemoryStorage()
-await storage.cleanup_old_records(days=90)
-```
-
-### Q10: 如何配置 S3 备份？
-A: 设置环境变量：
-```bash
-export COZE_BUCKET_ENDPOINT_URL=https://your-s3-endpoint.com
-export COZE_BUCKET_NAME=your-bucket-name
 ```
 
 ## 贡献指南
