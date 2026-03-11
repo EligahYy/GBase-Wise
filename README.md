@@ -1,4 +1,4 @@
-# GBase8a 数据库产品经理助手
+# GBase-Wise 数据库产品经理助手
 
 一个基于 LangChain 和 LangGraph 的智能助手，帮助 GBase8a 数据库产品经理完成竞品调研、市场分析、需求文档编写、技术支持和 SQL 生成等工作。
 
