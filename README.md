@@ -12,7 +12,15 @@
 - ✅ **SQL 生成与验证**：根据业务需求生成 GBase8a SQL 语句，并提供语法验证
 - ✅ **持续学习**：通过记录正向/反向反馈，持续优化 SQL 生成效果
 - ✅ **网页内容获取**：获取和分析网页内容
-- ✅ **多语言风格**：支持 6 种对话风格（专业/亲和/简洁/幽默/技术/导师）
+- ✅ **多语言风格**：支持 7 种对话风格（专业/亲和/简洁/幽默/技术/导师/温柔大姐姐）
+
+### 高级功能（v2.0 新增）
+- ✅ **对话压缩**：自动将过期对话压缩为摘要，保留关键信息
+- ✅ **长期记忆**：将压缩后的对话存储到 PostgreSQL 和知识库，支持长期记忆检索
+- ✅ **上下文感知**：基于历史对话上下文优化回答质量，提供更连贯的交互体验
+- ✅ **数据持久化**：所有数据存储在 PostgreSQL，支持分布式部署
+- ✅ **S3 备份**：支持将数据备份到 S3 对象存储，提供灾难恢复能力
+- ✅ **数据迁移**：支持将本地文件数据迁移到 PostgreSQL
 
 ### 工具清单（22 个）
 - 搜索工具（4 个）：web_search, search_competitor_info, search_market_trends, search_database_best_practices
@@ -21,6 +29,33 @@
 - 网页获取工具（4 个）：fetch_url, fetch_webpage_content, fetch_article_summary, fetch_document_content
 - 语言风格工具（3 个）：list_available_styles, switch_language_style, get_current_style_info
 - SQL 工具（4 个）：generate_sql, validate_sql, record_sql_feedback, manage_sql_examples
+
+### 系统架构
+```
+用户对话 → 短期记忆（滑动窗口 20 轮）
+         ↓
+      超过阈值时触发压缩
+         ↓
+      对话压缩引擎（LLM 驱动）
+         ├─ 提取关键信息（主题、意图、决策、结论、技术细节）
+         ├─ 生成对话摘要（200-300 字）
+         └─ 保留元数据（时间戳、会话 ID、原始消息数）
+         ↓
+      长期记忆存储
+         ├─ PostgreSQL（结构化数据）
+         └─ 知识库（全文检索）
+         ↓
+      上下文感知引擎
+         ├─ 语义相似性匹配（70% 权重）
+         ├─ 时间权重（越新越重要，20% 权重）
+         └─ 重要性评分（10% 权重）
+         ↓
+      上下文注入器
+         ├─ 作为独立消息注入
+         └─ 注入到最后一条用户消息中
+         ↓
+      优化后的回答（基于短期 + 长期记忆）
+```
 
 ## 技术栈
 
@@ -39,12 +74,15 @@
 ├── config/                       # 配置目录
 │   └── agent_llm_config.json     # LLM 配置文件
 ├── docs/                         # 文档
-├── scripts/                      # 脚本（本地运行、HTTP 服务）
+├── scripts/                      # 脚本
+│   └── init_migrate.py           # 初始化和迁移脚本
 ├── assets/                       # 资源目录
-│   ├── sql_examples/             # SQL 示例库
+│   ├── sql_examples/             # SQL 示例库（本地）
 │   │   ├── positive_examples.jsonl
 │   │   └── negative_examples.jsonl
-│   └── language_styles.json      # 语言风格配置
+│   ├── language_styles.json      # 语言风格配置（本地）
+│   ├── context_and_storage_optimization.md  # 优化方案文档
+│   └── implementation_summary.md # 实施总结文档
 ├── src/                          # 项目源码
 │   ├── agents/                   # Agent 代码
 │   │   └── agent.py              # 主 Agent 实现
@@ -58,9 +96,26 @@
 │   │   ├── sql_validation_tool.py
 │   │   └── sql_feedback_tool.py
 │   ├── storage/                  # 存储实现
-│   │   └── memory/
-│   │       └── memory_saver.py
+│   │   ├── database/             # 数据库
+│   │   │   └── db.py             # PostgreSQL 连接
+│   │   ├── memory/               # 短期记忆
+│   │   │   └── memory_saver.py   # 内存/PostgreSQL 存储
+│   │   ├── long_term/            # 长期记忆（v2.0 新增）
+│   │   │   ├── models.py         # 数据模型
+│   │   │   ├── conversation_compressor.py  # 对话压缩引擎
+│   │   │   ├── long_term_storage.py        # 长期记忆存储
+│   │   │   ├── compression_manager.py      # 对话压缩管理器
+│   │   │   ├── context_retriever.py        # 上下文检索引擎
+│   │   │   ├── context_injector.py         # 上下文注入器
+│   │   │   └── agent_managers.py          # Agent 管理器单例
+│   │   ├── migration/            # 数据迁移（v2.0 新增）
+│   │   │   └── migrator.py       # 数据迁移工具
+│   │   └── backup/               # 备份（v2.0 新增）
+│   │       └── s3_backup_manager.py  # S3 备份管理器
 │   └── utils/                    # 业务封装代码
+├── migrations/                   # 数据库迁移脚本（v2.0 新增）
+│   ├── 001_long_term_memory.sql  # 长期记忆表结构
+│   └── 002_data_storage.sql      # SQL 示例和语言风格表结构
 ├── tests/                        # 单元测试
 ├── requirements.txt              # 依赖包列表
 ├── .coze                         # 配置文件
@@ -323,6 +378,159 @@ python -m pytest tests/
 
 # 运行特定测试
 python -m pytest tests/test_sql_generation.py
+```
+
+## v2.0 新特性
+
+### 升级说明
+v2.0 版本新增了对话压缩、长期记忆、上下文感知、数据持久化和 S3 备份功能。以下是升级步骤：
+
+### 升级前准备
+1. 备份现有数据（如果有）
+2. 确保已配置 PostgreSQL 环境变量 `PGDATABASE_URL`
+3. 确保已配置 S3 对象存储环境变量（如需备份功能）
+
+### 升级步骤
+
+#### 1. 拉取最新代码
+```bash
+git pull origin main
+```
+
+#### 2. 安装新依赖
+```bash
+pip install -r requirements.txt
+```
+
+#### 3. 执行数据库迁移
+```bash
+# 自动执行数据库迁移和数据迁移
+python scripts/init_migrate.py
+
+# 或分别执行
+python scripts/init_migrate.py --skip-data-migration  # 只执行数据库迁移
+python scripts/init_migrate.py --skip-db-migration    # 只执行数据迁移
+```
+
+#### 4. 重启服务
+```bash
+# 本地运行
+bash scripts/local_run.sh -m flow
+
+# Docker 部署
+docker-compose down
+docker-compose up -d
+```
+
+### 新增功能使用
+
+#### 对话压缩
+- 自动触发：消息数达到 100 时自动压缩
+- 压缩间隔：每 24 小时最多压缩一次
+- 保留策略：压缩后保留最近 20 条消息
+- 长期记忆：压缩后的对话存储到 PostgreSQL 和知识库
+
+#### 上下文感知
+- 自动检索：每次对话自动检索相关历史上下文
+- 智能排序：基于语义相似度、时间权重和重要性评分
+- 上下文注入：将相关上下文注入到当前对话中
+- 优化回答：基于历史对话上下文提供更连贯的回答
+
+#### 数据持久化
+- PostgreSQL 存储：所有数据存储在 PostgreSQL
+- 分布式支持：支持多实例部署
+- 数据迁移：支持将本地文件迁移到 PostgreSQL
+- 备份恢复：支持 S3 对象存储备份
+
+### 配置参数
+
+#### 对话压缩配置
+```python
+# 在 src/agents/agent.py 中修改
+AgentManagers.initialize(
+    llm=llm,
+    compression_threshold=100,      # 消息数阈值
+    compression_interval_hours=24,  # 压缩间隔（小时）
+    enable_compression=True,        # 启用压缩
+)
+```
+
+#### 上下文感知配置
+```python
+# 在 src/agents/agent.py 中修改
+AgentManagers.initialize(
+    llm=llm,
+    kb_table_name="long_term_conversations",  # 知识库数据集名称
+    min_score=0.6,                           # 最小相似度阈值
+    max_contexts=5,                          # 最大上下文数量
+    enable_injection=True,                   # 启用注入
+)
+```
+
+### 数据库表说明
+
+#### memory.long_term_conversations
+存储压缩后的对话摘要
+- `thread_id`: 会话 ID
+- `summary`: 对话摘要
+- `key_info`: 关键信息（JSONB）
+- `metadata`: 元数据（JSONB）
+- `compressed_at`: 压缩时间
+- `retention_days`: 保留天数（默认 90 天）
+
+#### memory.conversation_key_info
+存储对话关键信息索引
+- `conversation_id`: 对话 ID
+- `key_type`: 类型（topic/intent/decision/conclusion/technical_detail）
+- `key_value`: 关键信息值
+- `importance_score`: 重要性评分
+
+#### memory.sql_examples
+存储 SQL 示例（从本地文件迁移）
+- `thread_id`: 会话 ID
+- `business_requirement`: 业务需求
+- `generated_sql`: 生成的 SQL
+- `feedback_type`: 反馈类型（positive/negative）
+- `feedback_comment`: 反馈评论
+
+#### memory.language_styles
+存储语言风格配置（从本地文件迁移）
+- `style_id`: 风格 ID
+- `style_name`: 风格名称
+- `description`: 描述
+- `称呼`: 用户称呼
+- `tone`: 语气
+- `greeting`: 问候语
+- `closing`: 结束语
+- `is_default`: 是否默认
+
+### 数据迁移
+v2.0 会自动将本地文件数据迁移到 PostgreSQL：
+- SQL 示例：`assets/sql_examples/*.jsonl` → `memory.sql_examples`
+- 语言风格：`assets/language_styles.json` → `memory.language_styles`
+
+### S3 备份
+如需使用 S3 备份功能，配置以下环境变量：
+```bash
+COZE_BUCKET_ENDPOINT_URL=https://your-s3-endpoint
+COZE_BUCKET_NAME=your-bucket-name
+```
+
+备份方式：
+```python
+from storage.backup.s3_backup_manager import S3BackupManager
+
+manager = S3BackupManager()
+results = await manager.backup_all()  # 全量备份
+```
+
+### 数据清理
+定期清理过期数据：
+```python
+# 清理过期长期记忆（90 天）
+from storage.long_term.long_term_storage import LongTermMemoryStorage
+storage = LongTermMemoryStorage()
+await storage.cleanup_old_records(days=90)
 ```
 
 ## 常见问题

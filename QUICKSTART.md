@@ -1,5 +1,62 @@
 # 快速开始指南
 
+## v2.0 升级说明
+
+如果你正在从 v1.x 升级到 v2.0，请先执行以下升级步骤：
+
+### 升级前准备
+1. 备份现有数据（如果有）
+2. 确保已配置 PostgreSQL 环境变量 `PGDATABASE_URL`
+3. 确保已配置 S3 对象存储环境变量（如需备份功能）
+
+### 升级步骤
+
+#### 1. 拉取最新代码
+```bash
+git pull origin main
+```
+
+#### 2. 安装新依赖
+```bash
+pip install -r requirements.txt
+```
+
+#### 3. 执行数据库迁移
+```bash
+# 自动执行数据库迁移和数据迁移
+python scripts/init_migrate.py
+
+# 或分别执行
+python scripts/init_migrate.py --skip-data-migration  # 只执行数据库迁移
+python scripts/init_migrate.py --skip-db-migration    # 只执行数据迁移
+```
+
+#### 4. 重启服务
+```bash
+# 本地运行
+bash scripts/local_run.sh -m flow
+
+# Docker 部署
+docker-compose down
+docker-compose up -d
+
+# systemd 服务
+sudo systemctl restart gbase8a-assistant
+```
+
+### 验证升级
+```bash
+# 检查数据库表
+python -c "
+from storage.database.db import get_session
+session = get_session()
+result = session.execute('SELECT COUNT(*) FROM memory.long_term_conversations')
+print(f'长期记忆表记录数: {result.scalar()}')
+"
+```
+
+---
+
 ## 方式一：GitHub 仓库管理
 
 ### 1. 提交代码到 GitHub
