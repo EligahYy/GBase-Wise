@@ -3,14 +3,22 @@ GBase8a 数据库产品经理助手 Agent
 """
 import os
 import json
+import logging
 from typing import Annotated
 from langchain.agents import create_agent
+from langchain.agents.middleware import wrap_tool_call
 from langchain_openai import ChatOpenAI
 from langgraph.graph import MessagesState
 from langgraph.graph.message import add_messages
-from langchain_core.messages import AnyMessage
+from langchain_core.messages import AnyMessage, ToolMessage
 from coze_coding_utils.runtime_ctx.context import default_headers
 from storage.memory.memory_saver import get_memory_saver
+from storage.long_term.compression_manager import ConversationCompressionManager
+from storage.long_term.context_retriever import ContextRetriever
+from storage.long_term.context_injector import ContextInjector
+from storage.long_term.agent_managers import AgentManagers
+
+logger = logging.getLogger(__name__)
 
 # 导入工具
 from tools.unified_search_tool import (
@@ -57,6 +65,21 @@ def _windowed_messages(old, new):
 
 class AgentState(MessagesState):
     messages: Annotated[list[AnyMessage], _windowed_messages]
+
+
+@wrap_tool_call
+def handle_tool_errors(request, handler):
+    """Handle tool execution errors with custom messages."""
+    try:
+        return handler(request)
+    except Exception as e:
+        # Return a custom error message to the model
+        logger.error(f"Tool execution error: {e}", exc_info=True)
+        return ToolMessage(
+            content=f"Tool execute error: ({str(e)})",
+            tool_call_id=request.tool_call["id"]
+        )
+
 
 def build_agent(ctx=None):
     """
@@ -126,10 +149,26 @@ def build_agent(ctx=None):
     ]
 
     # 创建 Agent
-    return create_agent(
+    agent = create_agent(
         model=llm,
         system_prompt=cfg.get("sp"),
         tools=tools,
         checkpointer=get_memory_saver(),
         state_schema=AgentState,
+        middleware=[handle_tool_errors]
     )
+    
+    # 初始化管理器（单例模式）
+    if not AgentManagers.is_initialized():
+        AgentManagers.initialize(
+            llm=llm,
+            compression_threshold=100,  # 消息数达到 100 时触发压缩
+            compression_interval_hours=24,  # 每 24 小时最多压缩一次
+            enable_compression=True,  # 启用压缩
+            kb_table_name="long_term_conversations",
+            min_score=0.6,
+            max_contexts=5,
+            enable_injection=True
+        )
+    
+    return agent
