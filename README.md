@@ -363,8 +363,8 @@ docker-compose up -d --build
 
 ## 联系方式
 
-- Issue: https://github.com/your-username/your-repo/issues
-- Email: your-email@example.com
+- Issue: https://github.com/EligahYy/GBase-Wise/issues
+- Email: eligahwsw@163.com
 
 ---
 
