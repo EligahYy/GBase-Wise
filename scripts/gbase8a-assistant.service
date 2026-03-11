@@ -1,0 +1,25 @@
+[Unit]
+Description=GBase8a 数据库产品经理助手服务
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/gbase8a-assistant
+Environment=COZE_WORKSPACE_PATH=/opt/gbase8a-assistant
+Environment=COZE_WORKLOAD_IDENTITY_API_KEY=your_api_key_here
+Environment=COZE_INTEGRATION_MODEL_BASE_URL=your_base_url_here
+
+# 启动命令
+ExecStart=/usr/bin/python3 -m uvicorn src.main:app --host 0.0.0.0 --port 5000
+
+# 重启策略
+Restart=always
+RestartSec=10
+
+# 日志
+StandardOutput=append:/opt/gbase8a-assistant/logs/service.log
+StandardError=append:/opt/gbase8a-assistant/logs/error.log
+
+[Install]
+WantedBy=multi-user.target

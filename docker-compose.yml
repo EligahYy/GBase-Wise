@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  gbase8a-assistant:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gbase8a-assistant
+    ports:
+      - "5000:5000"
+    volumes:
+      # 持久化数据目录
+      - ./assets:/app/assets
+      - ./config:/app/config
+      - ./logs:/app/work/logs/bypass
+    environment:
+      # LLM 配置（从环境变量读取）
+      - COZE_WORKLOAD_IDENTITY_API_KEY=${COZE_WORKLOAD_IDENTITY_API_KEY}
+      - COZE_INTEGRATION_MODEL_BASE_URL=${COZE_INTEGRATION_MODEL_BASE_URL}
+      # 工作目录
+      - COZE_WORKSPACE_PATH=/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
