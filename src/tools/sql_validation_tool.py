@@ -7,6 +7,23 @@ from coze_coding_utils.runtime_ctx.context import new_context
 from typing import Literal, List, Tuple
 import re
 
+def check_keyword_word(sql_upper: str, wrong_word: str, correct_word: str) -> bool:
+    """
+    检查 SQL 中是否存在作为独立单词的关键字拼写错误
+
+    Args:
+        sql_upper: SQL 语句（大写）
+        wrong_word: 错误的关键字
+        correct_word: 正确的关键字
+
+    Returns:
+        是否存在拼写错误
+    """
+    # 使用正则表达式检查单词边界
+    # \b 表示单词边界，确保匹配的是完整的单词
+    pattern = r'\b' + re.escape(wrong_word) + r'\b'
+    return bool(re.search(pattern, sql_upper))
+
 
 @tool
 def validate_sql(sql: str, strict_mode: bool = False, runtime: ToolRuntime = None) -> str:
@@ -197,12 +214,12 @@ def check_keywords(sql: str) -> List[str]:
     sql_upper = sql.upper()
 
     for keyword in keywords:
-        # 检查常见拼写错误
-        if keyword == "SELECT" and "SELECR" in sql_upper:
+        # 检查常见拼写错误（使用单词边界检查，避免误报）
+        if keyword == "SELECT" and check_keyword_word(sql_upper, "SELECR", "SELECT"):
             errors.append("关键字拼写错误: 'SELECR' 应为 'SELECT'")
-        if keyword == "FROM" and "FORM" in sql_upper:
+        if keyword == "FROM" and check_keyword_word(sql_upper, "FORM", "FROM"):
             errors.append("关键字拼写错误: 'FORM' 应为 'FROM'")
-        if keyword == "WHERE" and "WERE" in sql_upper:
+        if keyword == "WHERE" and check_keyword_word(sql_upper, "WERE", "WHERE"):
             errors.append("关键字拼写错误: 'WERE' 应为 'WHERE'")
 
     return errors
