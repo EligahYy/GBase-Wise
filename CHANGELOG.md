@@ -58,10 +58,21 @@
 - 🐛 修复 SQL 验证工具将 `DATE_FORMAT` 中 `FORM` 误判为拼写错误的问题
 - 🐛 修复数据迁移工具的语言风格解析问题
 
+### 安全
+
+- 🔒 将 Git 配置脚本移动到 `.scripts-local/` 目录，防止提交到远程仓库
+- 🔒 更新 `.gitignore`，添加 `.scripts-local/` 目录
+- 🔒 完成项目安全审计，确认无敏感信息泄露风险
+- 🔒 验证所有 SQL 查询使用参数化查询，防止 SQL 注入
+- 🔒 验证文件操作使用固定路径前缀，防止路径遍历
+
 ### 文档
 
 - 📚 新增 `assets/context_and_storage_optimization.md` 优化方案文档
 - 📚 新增 `assets/implementation_summary.md` 实施总结文档
+- 📚 新增 `docs/security_audit_report.md` 安全审计报告
+- 📚 新增 `docs/git_config_guide.md` Git 配置完整指南
+- 📚 新增 `docs/git_quickstart.md` Git 快速开始指南
 - 📚 更新 `README.md`，添加 v2.0 新特性说明
 - 📚 更新 `QUICKSTART.md`，添加升级指南
 

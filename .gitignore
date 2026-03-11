@@ -73,3 +73,7 @@ Thumbs.db
 config/agent_llm_config.json
 assets/language_styles.json
 assets/agent_function_analysis.md
+
+# Local scripts (not committed to repo)
+.scripts-local/
+

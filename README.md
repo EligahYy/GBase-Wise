@@ -71,9 +71,16 @@
 
 ```
 .
+├── .scripts-local/               # 本地脚本（不会提交到仓库）
+│   ├── setup_git.sh              # Git 一键配置脚本
+│   └── git_push.sh               # 自动提交和推送脚本
+├── .gitignore                    # Git 忽略文件
 ├── config/                       # 配置目录
 │   └── agent_llm_config.json     # LLM 配置文件
 ├── docs/                         # 文档
+│   ├── git_quickstart.md         # Git 快速开始指南
+│   ├── git_config_guide.md       # Git 配置完整指南
+│   └── security_audit_report.md  # 安全审计报告
 ├── scripts/                      # 脚本
 │   └── init_migrate.py           # 初始化和迁移脚本
 ├── assets/                       # 资源目录
@@ -121,6 +128,53 @@
 ├── .coze                         # 配置文件
 └── README.md                     # 项目说明
 ```
+
+## 安全说明
+
+### 敏感信息管理
+
+项目采用分层安全策略，保护敏感信息不被泄露：
+
+1. **环境变量**：
+   - 所有敏感信息（API Key、数据库密码等）通过环境变量配置
+   - 本地开发使用 `.env` 文件
+   - 生产环境通过平台配置注入
+
+2. **配置文件**：
+   - `config/agent_llm_config.json` 已在 `.gitignore` 中
+   - `assets/language_styles.json` 已在 `.gitignore` 中
+   - 配置文件不会被提交到远程仓库
+
+3. **本地脚本**：
+   - Git 配置脚本位于 `.scripts-local/` 目录
+   - `.scripts-local/` 目录已在 `.gitignore` 中
+   - 本地脚本不会被提交到远程仓库
+
+### SQL 安全
+
+1. **参数化查询**：
+   - 所有 SQL 查询使用参数化查询
+   - 防止 SQL 注入攻击
+
+2. **SQL 生成工具**：
+   - SQL 生成工具只生成 SQL，不直接执行
+   - 用户需手动复制并执行
+   - 提供验证工具检查语法
+
+### 安全审计
+
+- 定期执行安全审计（见 `docs/security_audit_report.md`）
+- 定期检查依赖项安全漏洞
+- 更新有安全问题的依赖项
+
+### 最佳实践
+
+1. 不要将 `.env` 文件提交到仓库
+2. 不要在代码中硬编码敏感信息
+3. 定期更新依赖项
+4. 定期执行安全审计
+5. 使用强密码和密钥
+6. 启用双因素认证（如适用）
 
 ## 快速开始
 

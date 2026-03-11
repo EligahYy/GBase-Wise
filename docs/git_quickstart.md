@@ -5,15 +5,32 @@
 运行快速配置脚本，交互式完成所有配置：
 
 ```bash
-bash scripts/setup_git.sh
+# 如果脚本不存在，先创建本地脚本目录
+mkdir -p .scripts-local
+
+# 从文档复制脚本内容到 .scripts-local/setup_git.sh
+# 然后运行：
+bash .scripts-local/setup_git.sh
 ```
 
-这个脚本会自动：
-1. 检查当前 Git 配置
-2. 配置用户名和邮箱
-3. 检查和配置远程仓库
-4. 配置 SSH 密钥或 Token
-5. 测试连接
+**重要提示：**
+- Git 配置脚本应保存在本地，不应提交到远程仓库
+- 请将 `.scripts-local/` 目录的内容保留在本地
+- `.scripts-local/` 目录已在 `.gitignore` 中，不会被提交到仓库
+
+### 获取本地脚本
+
+如果你还没有这些脚本，请从以下位置获取：
+
+1. **setup_git.sh** - 一键配置脚本
+   - 功能：交互式配置 Git 用户信息、SSH 密钥和远程仓库
+   - 位置：项目根目录的 `.scripts-local/setup_git.sh`
+
+2. **git_push.sh** - 自动提交和推送脚本
+   - 功能：自动化提交和推送工作流
+   - 位置：项目根目录的 `.scripts-local/git_push.sh`
+
+你可以从项目维护者那里获取这些脚本，或者根据文档说明手动创建。
 
 ---
 
