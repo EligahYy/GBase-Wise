@@ -182,6 +182,33 @@
 
 - Python 3.8+
 - pip
+- Git
+- SSH 密钥（用于 GitHub 访问）
+
+### 配置 Git SSH 访问
+
+#### 1. 生成 SSH 密钥（如果还没有）
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com" -f ~/.ssh/id_ed25519 -N ""
+```
+
+#### 2. 添加公钥到 GitHub
+
+```bash
+# 查看公钥
+cat ~/.ssh/id_ed25519.pub
+```
+
+访问 [GitHub SSH Keys](https://github.com/settings/keys)，将公钥添加进去。
+
+#### 3. 测试连接
+
+```bash
+ssh -T git@github.com
+```
+
+如果看到 `Hi <username>! You've successfully authenticated...`，说明配置成功。
 
 ### 安装依赖
 
@@ -221,160 +248,52 @@ bash scripts/http_run.sh -p 5000
 
 ## 部署指南
 
-### 方式一：本地部署
+### 本地部署
 
-适用于开发和测试环境。
-
-#### 1. 克隆项目
+1. 克隆项目
 ```bash
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+git clone git@github.com:EligahYy/GBase-Wise.git
+cd GBase-Wise
 ```
 
-#### 2. 安装依赖
+2. 安装依赖
 ```bash
 pip install -r requirements.txt
 ```
 
-#### 3. 配置环境变量
+3. 配置环境变量
 ```bash
-# Linux/Mac
 export COZE_WORKLOAD_IDENTITY_API_KEY=your_api_key
 export COZE_INTEGRATION_MODEL_BASE_URL=your_base_url
-
-# Windows (PowerShell)
-$env:COZE_WORKLOAD_IDENTITY_API_KEY="your_api_key"
-$env:COZE_INTEGRATION_MODEL_BASE_URL="your_base_url"
 ```
 
-#### 4. 运行
+4. 运行
 ```bash
 bash scripts/local_run.sh -m flow
 ```
 
-### 方式二：Docker 部署（推荐）
+### Docker 部署
 
-适用于生产环境，一键部署。
-
-#### 1. 安装 Docker
+1. 克隆项目
 ```bash
-# Ubuntu/Debian
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# macOS
-brew install --cask docker
-
-# Windows
-# 下载并安装 Docker Desktop
+git clone git@github.com:EligahYy/GBase-Wise.git
+cd GBase-Wise
 ```
 
-#### 2. 使用一键部署脚本
+2. 配置环境变量
 ```bash
-# 给脚本添加执行权限
-chmod +x deploy.sh
-
-# 执行部署
-./deploy.sh
+cp .env.example .env
+# 编辑 .env 文件
 ```
 
-部署脚本会自动：
-- 构建镜像
-- 启动容器
-- 配置端口映射
-- 持久化数据
-
-#### 3. 手动 Docker 部署
-
-如果一键脚本失败，可以手动部署：
-
+3. 运行
 ```bash
-# 构建镜像
-docker build -t gbase8a-assistant:latest .
-
-# 运行容器
-docker run -d \
-  --name gbase8a-assistant \
-  -p 5000:5000 \
-  -v $(pwd)/assets:/app/assets \
-  -v $(pwd)/config:/app/config \
-  -e COZE_WORKLOAD_IDENTITY_API_KEY=your_api_key \
-  -e COZE_INTEGRATION_MODEL_BASE_URL=your_base_url \
-  gbase8a-assistant:latest
-
-# 查看日志
-docker logs -f gbase8a-assistant
-
-# 停止容器
-docker stop gbase8a-assistant
-
-# 删除容器
-docker rm gbase8a-assistant
+docker-compose up -d
 ```
 
-### 方式三：服务器部署
+## 常用命令
 
-适用于云服务器（阿里云、腾讯云、AWS 等）。
-
-#### 1. 准备服务器
-- 操作系统：Ubuntu 20.04+ / CentOS 7+ / Debian 10+
-- Python 3.8+
-- 至少 2GB 内存
-
-#### 2. 克隆项目
-```bash
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
-```
-
-#### 3. 使用部署脚本
-```bash
-chmod +x deploy.sh
-./deploy.sh
-```
-
-#### 4. 使用 systemd 管理服务（可选）
-```bash
-# 创建服务文件
-sudo cp scripts/gbase8a-assistant.service /etc/systemd/system/
-
-# 启动服务
-sudo systemctl start gbase8a-assistant
-
-# 设置开机自启
-sudo systemctl enable gbase8a-assistant
-
-# 查看状态
-sudo systemctl status gbase8a-assistant
-
-# 查看日志
-sudo journalctl -u gbase8a-assistant -f
-```
-
-## 配置说明
-
-### LLM 配置
-
-编辑 `config/agent_llm_config.json`：
-
-```json
-{
-    "config": {
-        "model": "doubao-seed-1-6-251015",
-        "temperature": 0.7,
-        "top_p": 0.9,
-        "max_completion_tokens": 10000,
-        "timeout": 600,
-        "thinking": "disabled"
-    },
-    "sp": "...",
-    "tools": [...]
-}
-```
-
-### 语言风格配置
-
-编辑 `assets/language_styles.json`：
+### 本地开发
 
 ```json
 {

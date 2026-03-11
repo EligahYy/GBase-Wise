@@ -242,8 +242,10 @@
 
 ### 高优先级
 1. ✅ 本地脚本管理 - 已完成
-2. ⚠️ 定期更新依赖项 - 需要定期执行
-3. ⚠️ 启用依赖项审计 - 建议实施
+2. ✅ SSH 认证配置 - 已完成
+3. ✅ 删除明文 token 存储 - 已完成
+4. ⚠️ 定期更新依赖项 - 需要定期执行
+5. ⚠️ 启用依赖项审计 - 建议实施
 
 ### 中优先级
 4. ⚠️ 添加代码签名 - 可选增强
@@ -283,11 +285,17 @@
    - 解决方案：移动到 `.scripts-local/` 目录并添加到 `.gitignore`
    - 状态：✅ 已修复
 
+2. **明文 token 存储**
+   - 问题描述：GitHub token 以明文形式存储在 `~/.git-credentials` 文件
+   - 解决方案：删除明文存储，切换到 SSH 认证方式
+   - 状态：✅ 已修复
+
 ### B. 文件清单
 #### 已修改文件
 - `.gitignore` - 添加 `.scripts-local/` 目录
-- `docs/git_quickstart.md` - 更新脚本使用说明
-- `docs/git_config_guide.md` - 添加安全提示
+- `docs/git_quickstart.md` - 精简为快速开始指南，推荐 SSH 认证
+- `docs/git_config_guide.md` - 完整的 Git 配置指南，推荐 SSH 认证
+- `docs/security_audit_report.md` - 本文件，记录安全改进
 
 #### 已移动文件
 - `scripts/setup_git.sh` → `.scripts-local/setup_git.sh`

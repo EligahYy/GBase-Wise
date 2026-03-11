@@ -1,265 +1,220 @@
-# Git 配置快速开始
+# Git 快速开始指南
 
-## 一键配置（推荐）
+## 最快方式（5 分钟）
 
-运行快速配置脚本，交互式完成所有配置：
-
-```bash
-# 如果脚本不存在，先创建本地脚本目录
-mkdir -p .scripts-local
-
-# 从文档复制脚本内容到 .scripts-local/setup_git.sh
-# 然后运行：
-bash .scripts-local/setup_git.sh
-```
-
-**重要提示：**
-- Git 配置脚本应保存在本地，不应提交到远程仓库
-- 请将 `.scripts-local/` 目录的内容保留在本地
-- `.scripts-local/` 目录已在 `.gitignore` 中，不会被提交到仓库
-
-### 获取本地脚本
-
-如果你还没有这些脚本，请从以下位置获取：
-
-1. **setup_git.sh** - 一键配置脚本
-   - 功能：交互式配置 Git 用户信息、SSH 密钥和远程仓库
-   - 位置：项目根目录的 `.scripts-local/setup_git.sh`
-
-2. **git_push.sh** - 自动提交和推送脚本
-   - 功能：自动化提交和推送工作流
-   - 位置：项目根目录的 `.scripts-local/git_push.sh`
-
-你可以从项目维护者那里获取这些脚本，或者根据文档说明手动创建。
-
----
-
-## 手动配置
-
-### 步骤 1：配置 Git 用户信息
+### 1. 配置 SSH 访问（推荐）
 
 ```bash
-# 配置用户名
-git config --global user.name "EligahYy"
+# 生成 SSH 密钥
+ssh-keygen -t ed25519 -C "your_email@example.com" -f ~/.ssh/id_ed25519 -N ""
 
-# 配置邮箱
-git config --global user.email "eligahwsw@163.com"
-
-# 验证配置
-git config --global user.name
-git config --global user.email
-```
-
-### 步骤 2：配置认证方式
-
-#### 方式 A：使用 SSH（推荐）
-
-```bash
-# 1. 生成 SSH 密钥
-ssh-keygen -t ed25519 -C "eligahwsw@163.com"
-
-# 2. 查看公钥
+# 查看公钥
 cat ~/.ssh/id_ed25519.pub
-
-# 3. 添加到 GitHub：https://github.com/settings/keys
-
-# 4. 更新远程仓库地址为 SSH
-git remote set-url origin git@github.com:EligahYy/GBase-Wise.git
-
-# 5. 测试连接
-ssh -T git@github.com
 ```
 
-#### 方式 B：使用 Personal Access Token
+访问 [GitHub SSH Keys](https://github.com/settings/keys)，将公钥添加进去。
+
+### 2. 配置 Git 用户信息
 
 ```bash
-# 1. 生成 Token：https://github.com/settings/tokens
-# 2. 配置凭证助手
-git config --global credential.helper store
+git config --global user.name "Your Name"
+git config --global user.email "your_email@example.com"
 ```
 
-### 步骤 3：测试推送
+### 3. 克隆项目
 
 ```bash
-# 使用推送脚本
-bash scripts/git_push.sh "test: 初始化推送"
+git clone git@github.com:EligahYy/GBase-Wise.git
+cd GBase-Wise
 ```
 
----
-
-## 使用推送脚本
-
-### 基本使用
+### 4. 开始工作
 
 ```bash
-# 使用默认提交信息
-bash scripts/git_push.sh
-
-# 使用自定义提交信息
-bash scripts/git_push.sh "feat: 添加新功能"
-```
-
-### 脚本功能
-
-- ✅ 自动检查是否有更改
-- ✅ 自动拉取最新代码
-- ✅ 自动添加所有更改
-- ✅ 自动提交并推送
-- ✅ 显示详细的状态信息
-- ✅ 友好的错误提示
-
----
-
-## 常用命令
-
-### 查看状态
-```bash
+# 查看状态
 git status
-```
 
-### 手动提交和推送
-```bash
-# 1. 添加所有更改
+# 添加文件
 git add .
 
-# 2. 提交更改
-git commit -m "你的提交信息"
+# 提交
+git commit -m "feat: your message"
 
-# 3. 拉取最新代码
-git pull origin main
-
-# 4. 推送到远程仓库
+# 推送
 git push origin main
 ```
 
-### 查看日志
-```bash
-# 查看最近 5 条提交
-git log -5
-
-# 查看提交历史（图形化）
-git log --oneline --graph --all
-```
-
 ---
 
-## 验证配置
+## 常用命令速查
+
+### 初始化和克隆
+
+```bash
+# 初始化仓库
+git init
+
+# 克隆仓库（SSH）
+git clone git@github.com:username/repo.git
+
+# 克隆仓库（HTTPS）
+git clone https://github.com/username/repo.git
+```
+
+### 日常操作
+
+```bash
+# 查看状态
+git status
+
+# 查看修改
+git diff
+
+# 查看提交历史
+git log
+
+# 查看最近的提交
+git log --oneline -5
+```
+
+### 暂存和提交
+
+```bash
+# 添加所有文件
+git add .
+
+# 添加指定文件
+git add file.txt
+
+# 提交
+git commit -m "feat: your message"
+
+# 修改最后一次提交
+git commit --amend
+```
+
+### 分支操作
+
+```bash
+# 查看分支
+git branch
+
+# 创建分支
+git branch feature-x
+
+# 切换分支
+git checkout feature-x
+
+# 创建并切换分支
+git checkout -b feature-x
+
+# 删除分支
+git branch -d feature-x
+```
+
+### 远程操作
 
 ```bash
 # 查看远程仓库
 git remote -v
 
-# 查看用户配置
-git config --global user.name
-git config --global user.email
+# 拉取最新代码
+git pull origin main
 
-# 测试连接（SSH）
-ssh -T git@github.com
+# 推送到远程仓库
+git push origin main
+
+# 首次推送并设置默认分支
+git push -u origin main
+
+# 强制推送（谨慎使用）
+git push -f origin main
 ```
 
 ---
 
-## 故障排除
+## 提交消息规范
 
-### 推送失败：authentication failed
+使用 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
 
-**原因**：Token 无效或未配置
-
-**解决方案**：
 ```bash
-# 重新生成 Token
-# 访问：https://github.com/settings/tokens
+# 新功能
+git commit -m "feat: 添加用户登录功能"
 
-# 配置凭证助手
-git config --global credential.helper store
+# 修复 Bug
+git commit -m "fix: 修复登录页面样式问题"
 
-# 重新推送，输入用户名和 Token
-bash scripts/git_push.sh "test: 测试推送"
+# 文档更新
+git commit -m "docs: 更新 README.md"
+
+# 性能优化
+git commit -m "perf: 优化数据库查询"
+
+# 重构
+git commit -m "refactor: 重构用户模块"
+
+# 测试
+git commit -m "test: 添加单元测试"
+
+# 构建或工具
+git commit -m "chore: 更新依赖项"
 ```
 
-### 推送失败：Permission denied
+---
 
-**原因**：没有推送权限
+## 常见问题
 
-**解决方案**：
-- 检查是否是仓库的所有者或协作者
-- 检查远程仓库地址是否正确
+### 问题 1：推送失败
 
-### 推送失败：Updates were rejected
-
-**原因**：远程仓库有新的提交
-
-**解决方案**：
 ```bash
-# 方式 1：先拉取再推送
+# 拉取最新代码后合并
 git pull origin main --rebase
-bash scripts/git_push.sh "你的提交信息"
-
-# 方式 2：强制推送（谨慎使用）
-git push origin main --force
-```
-
-### SSH 连接失败
-
-**原因**：SSH 密钥未添加到 GitHub
-
-**解决方案**：
-```bash
-# 1. 查看公钥
-cat ~/.ssh/id_ed25519.pub
-
-# 2. 添加到 GitHub
-# 访问：https://github.com/settings/keys
-
-# 3. 测试连接
-ssh -T git@github.com
-```
-
----
-
-## 工作流建议
-
-### 日常开发流程
-
-```bash
-# 1. 拉取最新代码
-git pull origin main
-
-# 2. 进行开发或修改
-
-# 3. 查看更改
-git status
-
-# 4. 提交并推送
-bash scripts/git_push.sh "feat: 完成功能开发"
-```
-
-### 功能开发流程
-
-```bash
-# 1. 创建功能分支
-git checkout -b feature/new-feature
-
-# 2. 开发功能
-
-# 3. 提交更改
-bash scripts/git_push.sh "feat: 添加新功能"
-
-# 4. 合并到 main 分支
-git checkout main
-git pull origin main
-git merge feature/new-feature
 git push origin main
 ```
 
+### 问题 2：取消暂存的文件
+
+```bash
+# 取消所有暂存
+git reset
+
+# 取消指定文件
+git reset file.txt
+```
+
+### 问题 3：撤销提交
+
+```bash
+# 撤销最后一次提交（保留修改）
+git reset --soft HEAD~1
+
+# 撤销最后一次提交（丢弃修改）
+git reset --hard HEAD~1
+
+# 撤销多次提交
+git reset --hard HEAD~3
+```
+
+### 问题 4：忽略文件
+
+创建 `.gitignore` 文件：
+
+```bash
+# 忽略 .env 文件
+echo ".env" >> .gitignore
+
+# 忽略 node_modules 目录
+echo "node_modules/" >> .gitignore
+
+# 忽略日志文件
+echo "*.log" >> .gitignore
+```
+
 ---
 
-## 参考文档
+## 更多资源
 
-- [Git 配置完整指南](git_config_guide.md)
-- [GitHub 官方文档](https://docs.github.com)
-- [Git 官方文档](https://git-scm.com/doc)
-
----
-
-**配置完成后，你就可以随时将代码推送到自己的 GitHub 仓库了！** 🚀
+- [完整 Git 配置指南](git_config_guide.md)
+- [Git 官方文档](https://git-scm.com/docs)
+- [GitHub Git 指南](https://guides.github.com/introduction/git/)
+- [Conventional Commits 规范](https://www.conventionalcommits.org/)

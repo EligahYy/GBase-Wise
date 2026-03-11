@@ -1,5 +1,31 @@
 # 更新日志
 
+## [2.0.1] - 2025-01-14
+
+### 安全
+
+- 🔒 删除明文 GitHub token 存储文件（`~/.git-credentials`）
+- 🔒 移除 HTTPS 凭证助手配置（`credential.helper store`）
+- 🔒 切换到 SSH 认证方式，提高安全性
+- 🔒 验证 SSH 连接正常工作
+
+### 文档
+
+- 📚 精简 `README.md`，删除冗余部署说明
+- 📚 重写 `QUICKSTART.md`，专注于快速开始和常用命令
+- 📚 重写 `docs/git_quickstart.md`，添加常用命令速查表
+- 📚 重写 `docs/git_config_guide.md`，详细说明 SSH 和 HTTPS 配置
+- 📚 更新 `docs/security_audit_report.md`，记录安全改进
+- 📚 所有文档推荐使用 SSH 认证方式
+
+### 改进
+
+- 🚀 简化文档结构，提高可读性
+- 🚀 添加常用命令速查表
+- 🚀 添加故障排查指南
+
+---
+
 ## [2.0.0] - 2025-01-14
 
 ### 新增
