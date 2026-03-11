@@ -53,13 +53,14 @@ def import_document_to_knowledge(content: str, doc_type: str = "text", url: Opti
 
 
 @tool
-def search_knowledge_base(query: str, top_k: int = 5, runtime: ToolRuntime = None) -> str:
+def search_knowledge_base(query: str, top_k: int = 5, dataset: str = "gbase8a", runtime: ToolRuntime = None) -> str:
     """
     在知识库中进行语义搜索，回答专业的技术问题
 
     Args:
         query: 搜索问题或关键词
         top_k: 返回结果数量，默认 5
+        dataset: 知识库数据集名称，默认 "gbase8a"（GBase8a 官方文档）
         runtime: 工具运行时上下文
 
     Returns:
@@ -70,21 +71,28 @@ def search_knowledge_base(query: str, top_k: int = 5, runtime: ToolRuntime = Non
     client = KnowledgeClient(config=config, ctx=ctx)
 
     try:
-        response = client.search(
-            query=query,
-            top_k=top_k,
-            min_score=0.5  # 设置最低相似度阈值，过滤低质量结果
-        )
+        # 构造搜索参数
+        search_params = {
+            "query": query,
+            "top_k": top_k,
+            "min_score": 0.5  # 设置最低相似度阈值，过滤低质量结果
+        }
+
+        # 如果指定了数据集，添加 table_names 参数
+        if dataset:
+            search_params["table_names"] = [dataset]
+
+        response = client.search(**search_params)
 
         if response.code != 0:
             return f"知识库搜索失败: {response.msg}"
 
         if not response.chunks:
-            return f"在知识库中未找到与 '{query}' 相关的信息。请尝试使用联网搜索工具查找相关信息。"
+            return f"在知识库（数据集: {dataset}）中未找到与 '{query}' 相关的信息。请尝试使用联网搜索工具查找相关信息。"
 
         result_parts = []
         result_parts.append(f"## 知识库搜索结果: {query}\n")
-        result_parts.append(f"### 找到 {len(response.chunks)} 条相关信息\n")
+        result_parts.append(f"### 找到 {len(response.chunks)} 条相关信息（数据集: {dataset}）\n")
 
         for idx, chunk in enumerate(response.chunks, 1):
             result_parts.append(f"\n{idx}. **相关度**: {chunk.score:.2%}")

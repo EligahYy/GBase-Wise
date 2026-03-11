@@ -22,7 +22,14 @@
 - ✅ **S3 备份**：支持将数据备份到 S3 对象存储，提供灾难恢复能力
 - ✅ **数据迁移**：支持将本地文件数据迁移到 PostgreSQL
 
-### 工具清单（22 个）
+### 智能回答优化（v2.1.0 新增）
+- ✅ **知识库优先**：优先从 GBase8a 官方知识库检索权威信息
+- ✅ **回答长度控制**：智能控制回答长度（50-500 字），避免冗余
+- ✅ **多轮对话引导**：问题不清晰时，通过提问引导用户（最多 3 轮）
+- ✅ **回答深度优化**：不仅给出答案，还要解释原理和提供可执行建议
+- ✅ **精准回答**：直击问题核心，避免泛泛而谈
+
+### 工具清单（23 个）
 - 搜索工具（4 个）：web_search, search_competitor_info, search_market_trends, search_database_best_practices
 - 知识库工具（3 个）：import_document_to_knowledge, search_knowledge_base, query_technical_detail
 - 文档生成工具（4 个）：generate_requirement_doc, generate_competitor_report, generate_market_analysis_doc, generate_optimization_proposal
