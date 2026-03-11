@@ -32,6 +32,7 @@ from tools.knowledge_tool import (
     search_knowledge_base,
     query_technical_detail
 )
+from tools.hybrid_search_tool import hybrid_search
 from tools.document_generation_tool import (
     generate_requirement_doc,
     generate_competitor_report,
@@ -114,18 +115,20 @@ def build_agent(ctx=None):
         default_headers=default_headers(ctx) if ctx else {}
     )
 
-    # 定义工具列表
+    # 定义工具列表（按优先级排序）
     tools = [
-        # 统一搜索工具（新增）
+        # 混合检索工具（最高优先级 - 强制执行）
+        hybrid_search,
+        # 知识库管理工具
+        import_document_to_knowledge,
+        search_knowledge_base,
+        query_technical_detail,
+        # 统一搜索工具
         web_search,
         # 兼容性搜索工具（调用统一搜索工具）
         search_competitor_info,
         search_market_trends,
         search_database_best_practices,
-        # 知识库管理工具
-        import_document_to_knowledge,
-        search_knowledge_base,
-        query_technical_detail,
         # 文档生成工具
         generate_requirement_doc,
         generate_competitor_report,

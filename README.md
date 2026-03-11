@@ -29,7 +29,14 @@
 - ✅ **回答深度优化**：不仅给出答案，还要解释原理和提供可执行建议
 - ✅ **精准回答**：直击问题核心，避免泛泛而谈
 
-### 工具清单（23 个）
+### 混合检索机制（v2.2.0 新增）
+- ✅ **混合检索**：结合知识库检索（70%）和联网搜索（30%）
+- ✅ **结果融合**：加权排序 + 去重算法，提供更全面的信息
+- ✅ **强制优先级**：所有技术问题必须首先使用混合检索
+- ✅ **来源标注**：明确标注信息来源（知识库/联网搜索/混合）
+
+### 工具清单（24 个）
+- 混合检索工具（1 个）：hybrid_search
 - 搜索工具（4 个）：web_search, search_competitor_info, search_market_trends, search_database_best_practices
 - 知识库工具（3 个）：import_document_to_knowledge, search_knowledge_base, query_technical_detail
 - 文档生成工具（4 个）：generate_requirement_doc, generate_competitor_report, generate_market_analysis_doc, generate_optimization_proposal
@@ -38,6 +45,40 @@
 - SQL 工具（4 个）：generate_sql, validate_sql, record_sql_feedback, manage_sql_examples
 
 ### 系统架构
+```
+用户提问 → 混合检索（知识库 70% + 联网搜索 30%）
+         ↓
+      结果融合（加权排序 + 去重）
+         ↓
+      生成回答（优先知识库 + 补充联网搜索）
+         ↓
+      标注来源（知识库/联网搜索/混合）
+```
+
+### 混合检索流程
+```
+用户输入
+    ↓
+[1] 知识库检索（GBase8a 官方文档）
+    ├─ 搜索结果：top_k=5, min_score=0.5
+    └─ 评分：基于相似度、来源权威性
+    ↓
+[2] 联网搜索（补充最新信息）
+    ├─ 搜索结果：top_k=5
+    └─ 评分：基于来源权威性、时效性
+    ↓
+[3] 结果融合（加权排序）
+    ├─ 知识库结果：权重 70%
+    ├─ 联网搜索结果：权重 30%
+    └─ 去重、排序、截取 top_k=10
+    ↓
+[4] 生成回答
+    ├─ 优先使用知识库信息
+    ├─ 用联网搜索信息补充
+    └─ 标注信息来源
+```
+
+### 对话压缩与长期记忆（v2.0 新增）
 ```
 用户对话 → 短期记忆（滑动窗口 20 轮）
          ↓
